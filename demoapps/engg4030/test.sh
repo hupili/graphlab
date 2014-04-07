@@ -10,3 +10,5 @@ mpiexec -n 4 ./output/hello
 
 # RPC
 mpiexec -n 4 ./output/rpc
+
+./output/simple_pagerank_annotated  --graph sample_tsv/tsv --format tsv --saveprefix sample_output/pr
