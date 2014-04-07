@@ -30,7 +30,7 @@
 // Global random reset probability
 float RESET_PROB = 0.15;
 
-float TOLERANCE = 1.0E-2;
+float TOLERANCE = 1.0E-5;
 
 // The vertex data is just the pagerank value (a float)
 typedef float vertex_data_type;
