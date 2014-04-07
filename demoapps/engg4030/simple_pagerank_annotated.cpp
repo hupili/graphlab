@@ -45,6 +45,8 @@ typedef graphlab::distributed_graph<vertex_data_type, edge_data_type> graph_type
  * A simple function used by graph.transform_vertices(init_vertex);
  * to initialize the vertes data.
  */
+// Note: the vertex value is initialized as 1, not 1/N.
+//       So the resultant PR vector will also be scaled up by N.
 void init_vertex(graph_type::vertex_type& vertex) { vertex.data() = 1; }
 
 
@@ -70,6 +72,10 @@ void init_vertex(graph_type::vertex_type& vertex) { vertex.data() = 1; }
  * graphlab::IS_POD_TYPE it must implement load and save functions.
  */
 class pagerank :
+	// Second type 'float' is the GatherType.
+	// The engine will call "+=" on this type for all data gathered from neighbours.
+	// The summation is done in a parallel fasion.
+	// Make sure it is associative and commutative.
   public graphlab::ivertex_program<graph_type, float>,
   public graphlab::IS_POD_TYPE {
   float last_change;
@@ -92,6 +98,12 @@ public:
   /* The scatter edges depend on whether the pagerank has converged */
   edge_dir_type scatter_edges(icontext_type& context,
                               const vertex_type& vertex) const {
+
+	// enum edge_dir_type {
+	// NO_EDGES = 0
+	// IN_EDGES = 1
+	// OUT_EDGES = 2
+	// ALL_EDGES = 3
     if (last_change > TOLERANCE) return graphlab::OUT_EDGES;
     else return graphlab::NO_EDGES;
   }
@@ -109,12 +121,16 @@ public:
  * used in graph.save("path/prefix", pagerank_writer()) to save the graph.
  */
 struct pagerank_writer {
+	// These two functions will be called on every vertex and edge
+	// Note: the output is mixed together,
+	//       so you might want to find a way to make them recognizable later.
+	//       e.g. prefix "vertex:" or "edge:"
   std::string save_vertex(graph_type::vertex_type v) {
     std::stringstream strm;
-    strm << v.id() << "\t" << v.data() << "\n";
+    strm << "vertex:" << v.id() << "\t" << v.data() << "\n";
     return strm.str();
   }
-  std::string save_edge(graph_type::edge_type e) { return ""; }
+  std::string save_edge(graph_type::edge_type e) { return "edge:\n"; }
 }; // end of pagerank writer
 
 
@@ -164,6 +180,11 @@ int main(int argc, char** argv) {
             << " #edges:" << graph.num_edges() << std::endl;
 
   // Initialize the vertex data
+  //
+  // transform_vertices is like performing a "map" on all vertices,
+  // except that you can modify the data in-place.
+  // See also transform/fold/mapreduce vertices/edges:
+  //    http://docs.graphlab.org/classgraphlab_1_1distributed__graph.html
   graph.transform_vertices(init_vertex);
 
   // Running The Engine -------------------------------------------------------
@@ -179,7 +200,8 @@ int main(int argc, char** argv) {
     graph.save(saveprefix, pagerank_writer(),
                false,    // do not gzip
                true,     // save vertices
-               false);   // do not save edges
+               true);    // save edges
+               //false);   // do not save edges
   }
 
   // Tear-down communication layer and quit -----------------------------------
