@@ -21,6 +21,7 @@ copy:
 	mkdir -p output
 	cp ../../debug/demoapps/engg4030/simple_pagerank_annotated output
 	cp ../../debug/demoapps/engg4030/hello output
+	cp ../../debug/demoapps/engg4030/rpc output
 
 report:
 	@echo total number of memory: $(TOTAL_MEM_G)G
