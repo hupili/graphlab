@@ -13,12 +13,13 @@ compile:
 	cd ../../debug/demoapps/engg4030/; make -j $(NUM_JOBS)
 
 copy:
-	cp ../../debug/demoapps/engg4030/simple_pagerank_annotated .
-	cp ../../debug/demoapps/engg4030/hello .
+	cp ../../debug/demoapps/engg4030/simple_pagerank_annotated output
+	cp ../../debug/demoapps/engg4030/hello output
 
 report:
 	@echo total number of memory: $(TOTAL_MEM_G)G
 	@echo total number of CPUs: $(TOTAL_CPU)
 	@echo concurrent jobs: $(NUM_JOBS)
 
-
+clean:
+	rm -rf output
