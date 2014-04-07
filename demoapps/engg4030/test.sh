@@ -9,4 +9,4 @@
 mpiexec -n 4 ./output/hello
 
 # RPC
-./output/rpc
+mpiexec -n 4 ./output/rpc

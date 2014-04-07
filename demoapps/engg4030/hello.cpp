@@ -1,3 +1,9 @@
+/*
+ * Reference:
+ *    * http://docs.graphlab.org/using_graphlab_empty_app.html
+ *
+ */
+
 #include <graphlab.hpp>
 #include <iostream>
 
