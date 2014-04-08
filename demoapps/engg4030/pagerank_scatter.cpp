@@ -40,10 +40,11 @@ int g_num_vertices = -1;
 int g_num_edges = -1;
 
 typedef float vertex_data_type;
-typedef graphlab::empty edge_data_type;
+typedef float edge_data_type;
 typedef graphlab::distributed_graph<vertex_data_type, edge_data_type> graph_type;
 
 void init_vertex(graph_type::vertex_type& vertex) { vertex.data() = 1; }
+void init_edge(graph_type::edge_type& edge) { edge.data() = 0; }
 
 class pagerank :
 	public graphlab::ivertex_program<graph_type, float>,
@@ -57,8 +58,7 @@ class pagerank :
 	}
 	float gather(icontext_type& context, const vertex_type& vertex,
 			edge_type& edge) const {
-		return ((1.0 - RESET_PROB) / edge.source().num_out_edges()) *
-			edge.source().data();
+		return edge.data();
 	}
 	void apply(icontext_type& context, vertex_type& vertex,
 			const gather_type& total) {
@@ -73,6 +73,7 @@ class pagerank :
 	}
 	void scatter(icontext_type& context, const vertex_type& vertex,
 			edge_type& edge) const {
+		edge.data() = (1.0 - RESET_PROB) * vertex.data() / vertex.num_out_edges();
 		context.signal(edge.target());
 	}
 }; // end of factorized_pagerank update functor
@@ -97,7 +98,7 @@ int main(int argc, char** argv) {
 	std::string graph_dir = "sample_tsv";
 	std::string format = "tsv";
 	std::string exec_type = "synchronous";
-	std::string saveprefix = "sample_output/pr_base";
+	std::string saveprefix = "sample_output/pr_scatter";
 
 	graph_type graph(dc, clopts);
 	dc.cout() << "Loading graph in format: "<< format << std::endl;
@@ -109,6 +110,7 @@ int main(int argc, char** argv) {
 		<< " #edges:" << graph.num_edges() << std::endl;
 
 	graph.transform_vertices(init_vertex);
+	graph.transform_edges(init_edge);
 
 	graphlab::omni_engine<pagerank> engine(dc, graph, exec_type, clopts);
 	engine.signal_all();
