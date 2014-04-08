@@ -9,7 +9,14 @@ for line in sh.cat(sh.glob('sample_tsv/*')):
         G.add_edge(pair[0], pair[1])
 
 pr = nx.pagerank(G, max_iter=100, tol=1e-5)
+
 for node, value in pr.iteritems():
     # For comparision with GraphLab implementation,
     # we scale up with the number of nodes.
     print node, value * G.number_of_nodes()
+
+print '---- normalized ----'
+for node, value in pr.iteritems():
+    # For comparision with GraphLab implementation,
+    # we scale up with the number of nodes.
+    print node, value
