@@ -44,33 +44,34 @@ void init_vertex(graph_type::vertex_type& vertex) { vertex.data() = 1; }
 
 class pagerank :
 	public graphlab::ivertex_program<graph_type, float>,
-	public graphlab::IS_POD_TYPE {
-		float last_change;
-		public:
-		float gather(icontext_type& context, const vertex_type& vertex,
-				edge_type& edge) const {
-			return ((1.0 - RESET_PROB) / edge.source().num_out_edges()) *
-				edge.source().data();
-		}
+	public graphlab::IS_POD_TYPE 
+{
+	float last_change;
+	public:
+	float gather(icontext_type& context, const vertex_type& vertex,
+			edge_type& edge) const {
+		return ((1.0 - RESET_PROB) / edge.source().num_out_edges()) *
+			edge.source().data();
+	}
 
-		void apply(icontext_type& context, vertex_type& vertex,
-				const gather_type& total) {
-			const double newval = total + RESET_PROB;
-			last_change = std::fabs(newval - vertex.data());
-			vertex.data() = newval;
-		}
+	void apply(icontext_type& context, vertex_type& vertex,
+			const gather_type& total) {
+		const double newval = total + RESET_PROB;
+		last_change = std::fabs(newval - vertex.data());
+		vertex.data() = newval;
+	}
 
-		edge_dir_type scatter_edges(icontext_type& context,
-				const vertex_type& vertex) const {
-			if (last_change > TOLERANCE) return graphlab::OUT_EDGES;
-			else return graphlab::NO_EDGES;
-		}
+	edge_dir_type scatter_edges(icontext_type& context,
+			const vertex_type& vertex) const {
+		if (last_change > TOLERANCE) return graphlab::OUT_EDGES;
+		else return graphlab::NO_EDGES;
+	}
 
-		void scatter(icontext_type& context, const vertex_type& vertex,
-				edge_type& edge) const {
-			context.signal(edge.target());
-		}
-	}; // end of factorized_pagerank update functor
+	void scatter(icontext_type& context, const vertex_type& vertex,
+			edge_type& edge) const {
+		context.signal(edge.target());
+	}
+}; // end of factorized_pagerank update functor
 
 
 struct pagerank_writer {
