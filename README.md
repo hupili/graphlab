@@ -1,3 +1,33 @@
+
+GraphLab examples for [ENGG4030](https://course.ie.cuhk.edu.hk/~engg4030/).
+
+Files are under [/demoapps/engg4030](https://github.com/hupili/graphlab/tree/master/demoapps/engg4030):
+
+   * `Makefile`.
+   Simplified configure/modify/make procedure.
+   Only tested under Linux.
+   * `hello.cpp`.
+   Hello world example from official tutorial.
+   * `rpc.cpp`
+   RPC examples from tutorial.
+   * `simple_pagerank_annotated.cpp`.
+   Original PR under `/demoapps`, with more notes.
+   * `pagerank_base.cpp`.
+   Adapted from original PR to better diff with modifications.
+   * `pagerank_scatter.cpp`.
+   Original PR implementation is to gather shared weights from neighbours.
+   This one scatters values to neighbouring edges.
+   * `pagerank_fixed_iter_engine.cpp`.
+   Only one-round of GAS.
+   Start engine multiple times.
+   Equivalent to matrix multiplication.
+   * `pagerank_fixed_iter_vertex.cpp`.
+   Fixed-round of GAS using vertex's self-scheduling.
+   * `pagerank_simulation.cpp`.
+   Compute PR via random walker simulation.
+
+-----------------------------------
+
 Graphlab 
 ==========
 
