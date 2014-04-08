@@ -35,6 +35,7 @@
 
 float RESET_PROB = 0.15;
 float TOLERANCE = 1.0E-5;
+int SCHEDULE_COUNT = 10;
 
 int g_num_vertices = -1;
 int g_num_edges = -1;
@@ -68,12 +69,11 @@ class pagerank :
 	}
 	edge_dir_type scatter_edges(icontext_type& context,
 			const vertex_type& vertex) const {
-		if (last_change > TOLERANCE) return graphlab::OUT_EDGES;
-		else return graphlab::NO_EDGES;
+		return graphlab::NO_EDGES;
 	}
 	void scatter(icontext_type& context, const vertex_type& vertex,
 			edge_type& edge) const {
-		context.signal(edge.target());
+		//context.signal(edge.target());
 	}
 }; // end of factorized_pagerank update functor
 
@@ -97,7 +97,7 @@ int main(int argc, char** argv) {
 	std::string graph_dir = "sample_tsv";
 	std::string format = "tsv";
 	std::string exec_type = "synchronous";
-	std::string saveprefix = "sample_output/pr_base";
+	std::string saveprefix = "sample_output/pr_fixed_iter_engine";
 
 	graph_type graph(dc, clopts);
 	dc.cout() << "Loading graph in format: "<< format << std::endl;
@@ -111,8 +111,12 @@ int main(int argc, char** argv) {
 	graph.transform_vertices(init_vertex);
 
 	graphlab::omni_engine<pagerank> engine(dc, graph, exec_type, clopts);
-	engine.signal_all();
-	engine.start();
+	
+	for (int i = 0; i < SCHEDULE_COUNT; i++){
+		dc.cout() << "Round" << i << "\n";
+		engine.signal_all();
+		engine.start();
+	}
 	const float runtime = engine.elapsed_seconds();
 	dc.cout() << "Finished Running engine in " << runtime
 		<< " seconds." << std::endl;
